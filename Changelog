@@ -18,6 +18,7 @@ version <next>:
 - JPEG-XS parser
 - JPEG-XS decoder and encoder through libsvtjpegxs
 - JPEG-XS raw bitstream muxer and demuxer
+- V4L2 Request API stateless decoder support
 
 
 version 8.0:
