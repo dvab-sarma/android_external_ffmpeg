@@ -167,6 +167,7 @@ libavutil/film_grain.* @haasn
 libavutil/dovi_meta.* @haasn
 libavutil/hwcontext_oh.* @quink
 libavutil/hwcontext_mediacodec.* @quink
+libavutil/hwcontext_v4l2request.* @Kwiboo @jernej @knaerzche
 libavutil/hwcontext_videotoolbox.* @ePirat
 libavutil/iamf.* @jamrial
 libavutil/integer.* @michaelni
