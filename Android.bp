@@ -1,0 +1,71 @@
+//
+// Copyright (C) 2025 KonstaKANG
+// Copyright (C) 2025 Venkata Atchuta Bheemeswara Sarma Darbha
+//
+// SPDX-License-Identifier: LGPL-2.1-or-later
+//
+
+cc_library_headers {
+    name: "ffmpeg_headers",
+    vendor: true,
+    export_include_dirs: [
+        ".",
+        "libavcodec",
+        "libavformat",
+        "libavutil",
+        "libswresample",
+        "libswscale",
+    ],
+}
+
+cc_defaults {
+    name: "ffmpeg_defaults",
+    vendor: true,
+    compile_multilib: "64",
+    header_libs: [
+        "ffmpeg_headers",
+    ],
+    export_header_lib_headers: [
+        "ffmpeg_headers",
+    ],
+    cflags: [
+        "-DHAVE_AV_CONFIG_H",
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_LARGEFILE_SOURCE",
+        "-DPIC",
+        "-O3",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-fno-math-errno",
+        "-fno-signed-zeros",
+        "-fomit-frame-pointer",
+        "-fPIC",
+        "-Wno-parentheses",
+        "-Wno-switch",
+        "-Wno-format-zero-length",
+        "-Wno-pointer-sign",
+        "-Wno-unused-const-variable",
+        "-Wno-bool-operation",
+        "-Wno-deprecated-declarations",
+        "-Wno-unused-variable",
+        "-Wno-unused-parameter",
+        "-Wno-missing-field-initializers",
+        "-Wno-incompatible-pointer-types-discards-qualifiers",
+        "-Wno-sometimes-uninitialized",
+        "-Wno-unneeded-internal-declaration",
+        "-Wno-initializer-overrides",
+        "-Wno-string-plus-int",
+        "-Wno-absolute-value",
+        "-Wno-constant-conversion",
+        "-Wno-unknown-attributes",
+        "-Wno-inline-asm",
+        "-Wno-enum-conversion",
+    ],
+    ldflags: [
+        "-Wl,-Bsymbolic",
+    ],
+    asflags: [
+        "-fPIC",
+    ],
+
+}

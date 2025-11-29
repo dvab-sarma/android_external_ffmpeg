@@ -431,6 +431,8 @@ enum AVPixelFormat {
 
     AV_PIX_FMT_GBRAP14BE,  ///< planar GBR 4:4:4:4 56bpp, big-endian
     AV_PIX_FMT_GBRAP14LE,  ///< planar GBR 4:4:4:4 56bpp, little-endian
+    AV_PIX_FMT_NV15,     ///< Rockchip Specific 10 bit nv12
+
 
     /**
      * Hardware surfaces for Direct3D 12.

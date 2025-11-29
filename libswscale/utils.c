@@ -93,6 +93,8 @@ static const FormatEntry format_entries[] = {
     [AV_PIX_FMT_RGB4]        = { 0, 1 },
     [AV_PIX_FMT_RGB4_BYTE]   = { 1, 1 },
     [AV_PIX_FMT_NV12]        = { 1, 1 },
+    // change here
+    [AV_PIX_FMT_NV15]        = { 1, 1 },
     [AV_PIX_FMT_NV21]        = { 1, 1 },
     [AV_PIX_FMT_ARGB]        = { 1, 1 },
     [AV_PIX_FMT_RGBA]        = { 1, 1 },

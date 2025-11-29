@@ -24,6 +24,11 @@
 #include "internal.h"
 #include "v4l2_request.h"
 
+static __inline__ __u64 v4l2_timeval_to_ns(const struct timeval *tv)
+{
+	return (__u64)tv->tv_sec * 1000000000ULL + tv->tv_usec * 1000;
+}
+
 typedef struct V4L2RequestFrameDescriptor {
     AVDRMFrameDescriptor base;
     V4L2RequestBuffer capture;

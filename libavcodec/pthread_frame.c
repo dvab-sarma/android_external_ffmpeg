@@ -153,9 +153,11 @@ typedef struct FrameThreadContext {
     /* hwaccel state for thread-unsafe hwaccels is temporarily stored here in
      * order to transfer its ownership to the next decoding thread without the
      * need for extra synchronization */
-    const AVHWAccel *stash_hwaccel;
-    void            *stash_hwaccel_context;
-    void            *stash_hwaccel_priv;
+
+    // change added by me
+    // const AVHWAccel *stash_hwaccel;
+    // void            *stash_hwaccel_context;
+    // void            *stash_hwaccel_priv;
 } FrameThreadContext;
 
 static int hwaccel_serial(const AVCodecContext *avctx)
@@ -310,15 +312,19 @@ alloc_fail:
              * pointers lying around;
              * the state was transferred to FrameThreadContext in
              * ff_thread_finish_setup(), so nothing is leaked */
-            avctx->hwaccel                     = NULL;
-            avctx->hwaccel_context             = NULL;
-            avctx->internal->hwaccel_priv_data = NULL;
+
+            // change added by me
+            // avctx->hwaccel                     = NULL;
+            // avctx->hwaccel_context             = NULL;
+            // avctx->internal->hwaccel_priv_data = NULL;
 
             p->hwaccel_serializing = 0;
             pthread_mutex_unlock(&p->parent->hwaccel_mutex);
         }
-        av_assert0(!avctx->hwaccel ||
-                   (ffhwaccel(avctx->hwaccel)->caps_internal & HWACCEL_CAP_THREAD_SAFE));
+
+        // change added by me
+        // av_assert0(!avctx->hwaccel ||
+        //            (ffhwaccel(avctx->hwaccel)->caps_internal & HWACCEL_CAP_THREAD_SAFE));
 
         if (p->async_serializing) {
             p->async_serializing = 0;
@@ -386,11 +392,18 @@ FF_ENABLE_DEPRECATION_WARNINGS
         dst->color_range = src->color_range;
         dst->chroma_sample_location = src->chroma_sample_location;
 
+        // Added by me - 
+        dst->hwaccel = src->hwaccel;
+        dst->hwaccel_context = src->hwaccel_context;
+
         dst->sample_rate    = src->sample_rate;
         dst->sample_fmt     = src->sample_fmt;
         err = av_channel_layout_copy(&dst->ch_layout, &src->ch_layout);
         if (err < 0)
             return err;
+        
+        // added by me
+        dst->internal->hwaccel_priv_data = src->internal->hwaccel_priv_data;
 
         if (!!dst->hw_frames_ctx != !!src->hw_frames_ctx ||
             (dst->hw_frames_ctx && dst->hw_frames_ctx->data != src->hw_frames_ctx->data)) {
@@ -545,13 +558,14 @@ static int submit_packet(PerThreadContext *p, AVCodecContext *user_avctx,
         }
     }
 
-    /* transfer the stashed hwaccel state, if any */
-    av_assert0(!p->avctx->hwaccel || p->hwaccel_threadsafe);
-    if (!p->hwaccel_threadsafe) {
-        FFSWAP(const AVHWAccel*, p->avctx->hwaccel,                     fctx->stash_hwaccel);
-        FFSWAP(void*,            p->avctx->hwaccel_context,             fctx->stash_hwaccel_context);
-        FFSWAP(void*,            p->avctx->internal->hwaccel_priv_data, fctx->stash_hwaccel_priv);
-    }
+    // change added by me
+    // /* transfer the stashed hwaccel state, if any */
+    // av_assert0(!p->avctx->hwaccel || p->hwaccel_threadsafe);
+    // if (!p->hwaccel_threadsafe) {
+    //     FFSWAP(const AVHWAccel*, p->avctx->hwaccel,                     fctx->stash_hwaccel);
+    //     FFSWAP(void*,            p->avctx->hwaccel_context,             fctx->stash_hwaccel_context);
+    //     FFSWAP(void*,            p->avctx->internal->hwaccel_priv_data, fctx->stash_hwaccel_priv);
+    // }
 
     atomic_store(&p->state, STATE_SETTING_UP);
     pthread_cond_signal(&p->input_cond);
@@ -695,12 +709,14 @@ void ff_thread_finish_setup(AVCodecContext *avctx) {
      * save hwaccel state for passing to the next thread;
      * this is done here so that this worker thread can wipe its own hwaccel
      * state after decoding, without requiring synchronization */
-    av_assert0(!p->parent->stash_hwaccel);
-    if (hwaccel_serial(avctx)) {
-        p->parent->stash_hwaccel         = avctx->hwaccel;
-        p->parent->stash_hwaccel_context = avctx->hwaccel_context;
-        p->parent->stash_hwaccel_priv    = avctx->internal->hwaccel_priv_data;
-    }
+
+    // change added by me
+    // av_assert0(!p->parent->stash_hwaccel);
+    // if (hwaccel_serial(avctx)) {
+    //     p->parent->stash_hwaccel         = avctx->hwaccel;
+    //     p->parent->stash_hwaccel_context = avctx->hwaccel_context;
+    //     p->parent->stash_hwaccel_priv    = avctx->internal->hwaccel_priv_data;
+    // }
 
     pthread_mutex_lock(&p->progress_mutex);
     if(atomic_load(&p->state) == STATE_SETUP_FINISHED){
@@ -754,6 +770,15 @@ void ff_frame_thread_free(AVCodecContext *avctx, int thread_count)
 
     park_frame_worker_threads(fctx, thread_count);
 
+    //added by me - 
+
+    if (fctx->prev_thread && avctx->internal->hwaccel_priv_data !=
+                    fctx->prev_thread->avctx->internal->hwaccel_priv_data){
+                        if (update_context_from_thread(avctx, fctx->prev_thread->avctx,1) < 0){
+                            av_log(avctx, AV_LOG_ERROR, "Failed to update user thread.\n");
+                        }
+                    }
+
     for (i = 0; i < thread_count; i++) {
         PerThreadContext *p = &fctx->threads[i];
         AVCodecContext *ctx = p->avctx;
@@ -806,10 +831,12 @@ void ff_frame_thread_free(AVCodecContext *avctx, int thread_count)
 
     /* if we have stashed hwaccel state, move it to the user-facing context,
      * so it will be freed in ff_codec_close() */
-    av_assert0(!avctx->hwaccel);
-    FFSWAP(const AVHWAccel*, avctx->hwaccel,                     fctx->stash_hwaccel);
-    FFSWAP(void*,            avctx->hwaccel_context,             fctx->stash_hwaccel_context);
-    FFSWAP(void*,            avctx->internal->hwaccel_priv_data, fctx->stash_hwaccel_priv);
+
+    // change added by me
+    // av_assert0(!avctx->hwaccel);
+    // FFSWAP(const AVHWAccel*, avctx->hwaccel,                     fctx->stash_hwaccel);
+    // FFSWAP(void*,            avctx->hwaccel_context,             fctx->stash_hwaccel_context);
+    // FFSWAP(void*,            avctx->internal->hwaccel_priv_data, fctx->stash_hwaccel_priv);
 
     av_freep(&avctx->internal->thread_ctx);
 }

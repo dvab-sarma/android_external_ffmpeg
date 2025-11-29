@@ -245,6 +245,7 @@ typedef struct AV1RawFrameHeader {
     uint8_t segmentation_update_data;
     uint8_t feature_enabled[AV1_MAX_SEGMENTS][AV1_SEG_LVL_MAX];
     int16_t feature_value[AV1_MAX_SEGMENTS][AV1_SEG_LVL_MAX];
+    uint8_t last_active_seg_id;
 
     uint8_t delta_q_present;
     uint8_t delta_q_res;

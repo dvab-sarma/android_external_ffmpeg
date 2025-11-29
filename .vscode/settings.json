@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "avassert.h": "c",
+        "hwcontext.h": "c",
+        "timer.h": "c",
+        "config.h": "c",
+        "decode.h": "c",
+        "config_components.h": "c",
+        "hwcontext_v4l2request.h": "c"
+    }
+}

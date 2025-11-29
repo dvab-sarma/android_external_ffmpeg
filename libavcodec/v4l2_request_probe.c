@@ -30,6 +30,18 @@
 #include "libavutil/mem.h"
 #include "v4l2_request_internal.h"
 
+#ifndef DRM_FORMAT_NV15
+#define DRM_FORMAT_NV15 fourcc_code('N', 'V', '1', '5')
+#endif
+
+#ifndef V4L2_PIX_FMT_NV15
+#define V4L2_PIX_FMT_NV15 v4l2_fourcc('N', 'V', '1', '5')
+#endif
+
+#ifndef DRM_FORMAT_NV20
+#define DRM_FORMAT_NV20 fourcc_code('N', 'V', '2', '0')
+#endif
+
 static const struct {
     uint32_t pixelformat;
     enum AVPixelFormat sw_format;
@@ -37,11 +49,9 @@ static const struct {
     uint64_t format_modifier;
 } v4l2_request_capture_pixelformats[] = {
     { V4L2_PIX_FMT_NV12, AV_PIX_FMT_NV12, DRM_FORMAT_NV12, DRM_FORMAT_MOD_LINEAR },
+    { V4L2_PIX_FMT_NV15, AV_PIX_FMT_NV15, DRM_FORMAT_NV15, DRM_FORMAT_MOD_LINEAR },
 #if defined(V4L2_PIX_FMT_NV12_32L32)
     { V4L2_PIX_FMT_NV12_32L32, AV_PIX_FMT_NONE, DRM_FORMAT_NV12, DRM_FORMAT_MOD_ALLWINNER_TILED },
-#endif
-#if defined(V4L2_PIX_FMT_NV15) && defined(DRM_FORMAT_NV15)
-    { V4L2_PIX_FMT_NV15, AV_PIX_FMT_NONE, DRM_FORMAT_NV15, DRM_FORMAT_MOD_LINEAR },
 #endif
     { V4L2_PIX_FMT_NV16, AV_PIX_FMT_NV16, DRM_FORMAT_NV16, DRM_FORMAT_MOD_LINEAR },
 #if defined(V4L2_PIX_FMT_NV20) && defined(DRM_FORMAT_NV20)
