@@ -933,7 +933,6 @@ cc_library_shared {
         "v4l2_request_vp9.c",
         "v4l2_request_vp8.c",
         "v4l2_request_h264.c",
-        "v4l2_request_av1.c",
         "v210dec.c",
         "v210enc.c",
         "v210x.c",
