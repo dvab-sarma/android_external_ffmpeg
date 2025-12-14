@@ -101,6 +101,24 @@ static const struct {
         .bit_depth = 10,
     },
 #endif
+#if defined(V4L2_PIX_FMT_NV12_COL128) && defined(V4L2_PIX_FMT_NV12_10_COL128)
+    {
+        .pixelformat = V4L2_PIX_FMT_NV12_COL128,
+        .sw_format = AV_PIX_FMT_YUV420P,
+        .drm_format = DRM_FORMAT_NV12,
+        .format_modifier = DRM_FORMAT_MOD_BROADCOM_SAND128,
+        .bit_depth = 8,
+    },
+#if defined(DRM_FORMAT_P030)
+    {
+        .pixelformat = V4L2_PIX_FMT_NV12_10_COL128,
+        .sw_format = AV_PIX_FMT_YUV420P10,
+        .drm_format = DRM_FORMAT_P030,
+        .format_modifier = DRM_FORMAT_MOD_BROADCOM_SAND128,
+        .bit_depth = 10,
+    },
+#endif
+#endif
 };
 
 static int v4l2request_set_drm_descriptor(AVDRMFrameDescriptor *desc,
@@ -149,6 +167,25 @@ static int v4l2request_set_drm_descriptor(AVDRMFrameDescriptor *desc,
                                    format->fmt.pix.height);
         layer->planes[1].pitch = layer->planes[0].pitch;
     }
+
+#if defined(V4L2_PIX_FMT_NV12_COL128) && defined(V4L2_PIX_FMT_NV12_10_COL128)
+    // Raspberry Pi formats need special handling
+    if (pixelformat == V4L2_PIX_FMT_NV12_COL128 ||
+        pixelformat == V4L2_PIX_FMT_NV12_10_COL128) {
+        desc->objects[0].format_modifier =
+            DRM_FORMAT_MOD_BROADCOM_SAND128_COL_HEIGHT(layer->planes[0].pitch);
+        layer->planes[1].offset = 128 *
+                                  (V4L2_TYPE_IS_MULTIPLANAR(format->type) ?
+                                   format->fmt.pix_mp.height :
+                                   format->fmt.pix.height);
+        layer->planes[0].pitch = (V4L2_TYPE_IS_MULTIPLANAR(format->type) ?
+                                  format->fmt.pix_mp.width :
+                                  format->fmt.pix.width);
+        if (pixelformat == V4L2_PIX_FMT_NV12_10_COL128)
+            layer->planes[0].pitch *= 2;
+        layer->planes[1].pitch = layer->planes[0].pitch;
+    }
+#endif
 
     return 0;
 }
