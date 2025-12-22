@@ -248,6 +248,7 @@ static int v4l2request_select_capture_format(AVHWFramesContext *hwfc)
     AVV4L2RequestFramesContext *fctx = hwfc->hwctx;
     AVV4L2RequestFramesContextInternal *fctxi = fctx->internal;
     enum v4l2_buf_type type = fctxi->capture.format.type;
+    uint32_t pixelformat, fallback = 0;
     struct v4l2_format format = {
         .type = type,
     };
@@ -255,7 +256,6 @@ static int v4l2request_select_capture_format(AVHWFramesContext *hwfc)
         .index = 0,
         .type = type,
     };
-    uint32_t pixelformat;
 
     // Get the driver preferred (or default) format
     if (ioctl(fctxi->video_fd, VIDIOC_G_FMT, &format) < 0)
@@ -265,7 +265,7 @@ static int v4l2request_select_capture_format(AVHWFramesContext *hwfc)
                   format.fmt.pix_mp.pixelformat :
                   format.fmt.pix.pixelformat;
 
-    // Use the driver preferred format when it is supported
+    // Try to use the driver preferred format when it is a known format
     for (int i = 0; i < FF_ARRAY_ELEMS(v4l2request_capture_pixelformats); i++) {
         if (pixelformat == v4l2request_capture_pixelformats[i].pixelformat &&
             (fctx->bit_depth == v4l2request_capture_pixelformats[i].bit_depth ||
@@ -273,17 +273,24 @@ static int v4l2request_select_capture_format(AVHWFramesContext *hwfc)
             return v4l2request_set_format(hwfc, type, pixelformat, 0);
     }
 
-    // Otherwise, use first format that is supported
+    // Next try to use the first known format with matching bit depth
     while (ioctl(fctxi->video_fd, VIDIOC_ENUM_FMT, &fmtdesc) >= 0) {
         for (int i = 0; i < FF_ARRAY_ELEMS(v4l2request_capture_pixelformats); i++) {
-            if (fmtdesc.pixelformat == v4l2request_capture_pixelformats[i].pixelformat &&
-                (fctx->bit_depth == v4l2request_capture_pixelformats[i].bit_depth ||
-                 !fctx->bit_depth))
-                return v4l2request_set_format(hwfc, type, fmtdesc.pixelformat, 0);
+            if (fmtdesc.pixelformat == v4l2request_capture_pixelformats[i].pixelformat) {
+                if (fctx->bit_depth == v4l2request_capture_pixelformats[i].bit_depth ||
+                    !fctx->bit_depth)
+                    return v4l2request_set_format(hwfc, type, fmtdesc.pixelformat, 0);
+                else if (!fallback)
+                    fallback = fmtdesc.pixelformat;
+            }
         }
 
         fmtdesc.index++;
     }
+
+    // Fallback to use the first known format
+    if (fallback)
+        return v4l2request_set_format(hwfc, type, fallback, 0);
 
     return AVERROR(errno);
 }
