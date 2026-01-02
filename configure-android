@@ -43,7 +43,7 @@ echo "./configure $ARCH_CONFIG $FFMPEG_CONFIG"
 cat > libavutil/ffversion.h <<EOF
 #ifndef AVUTIL_FFVERSION_H
 #define AVUTIL_FFVERSION_H
-#define FFMPEG_VERSION "$(cat RELEASE) (Venkata Atchutaa Bheemeswara Sarma Darbha)"
+#define FFMPEG_VERSION "$(cat RELEASE) (Venkata Atchuta Bheemeswara Sarma Darbha)"
 #endif /* AVUTIL_FFVERSION_H */
 EOF
 
