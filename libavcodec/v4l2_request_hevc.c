@@ -25,7 +25,8 @@
 #include "internal.h"
 #include "v4l2_request.h"
 
-#define V4L2_HEVC_CONTROLS_MAX 6
+#define V4L2_HEVC_CONTROLS_MAX 7
+#define MAX_EXT_SPS_RPS 65
 
 typedef struct V4L2RequestContextHEVC {
     V4L2RequestContext base;
@@ -44,6 +45,8 @@ typedef struct V4L2RequestControlsHEVC {
     struct v4l2_ctrl_hevc_scaling_matrix scaling_matrix;
     struct v4l2_ctrl_hevc_slice_params slice_params;
     struct v4l2_ctrl_hevc_slice_params *frame_slice_params;
+    struct v4l2_ctrl_hevc_ext_sps_st_rps ext_sps_st_rps[MAX_EXT_SPS_RPS];
+    struct v4l2_ctrl_hevc_ext_sps_lt_rps ext_sps_lt_rps[MAX_EXT_SPS_RPS];
     unsigned int allocated_slice_params;
     unsigned int num_slice_params;
     uint32_t *entry_point_offsets;
@@ -360,6 +363,48 @@ static void fill_sps(struct v4l2_ctrl_hevc_sps *ctrl, const HEVCContext *h)
         ctrl->flags |= V4L2_HEVC_SPS_FLAG_STRONG_INTRA_SMOOTHING_ENABLED;
 }
 
+static void fill_ext_sps_st_rps (struct v4l2_ctrl_hevc_ext_sps_st_rps *ctrl, const HEVCContext *h)
+{
+    const HEVCPPS *pps = h->pps;
+    const HEVCSPS *sps = pps->sps;
+    int i;
+
+    for (i = 0; i < sps->nb_st_rps; i++) {
+        ctrl[i].flags |=
+          sps->st_rps[i].rps_predict ?
+          V4L2_HEVC_EXT_SPS_ST_RPS_FLAG_INTER_REF_PIC_SET_PRED : 0,
+        ctrl[i].delta_idx_minus1 =
+          sps->st_rps[i].delta_idx - 1;
+        ctrl[i].delta_rps_sign =
+          sps->st_rps[i].delta_rps_sign;
+        ctrl[i].abs_delta_rps_minus1 =
+          sps->st_rps[i].abs_delta_rps - 1;
+        ctrl[i].num_negative_pics =
+          sps->st_rps[i].num_negative_pics;
+        ctrl[i].num_positive_pics =
+          sps->st_rps[i].num_delta_pocs - sps->st_rps[i].num_negative_pics;
+
+        ctrl[i].used_by_curr_pic = sps->st_rps[i].used;
+        ctrl[i].use_delta_flag = sps->st_rps[i].use_delta;
+
+        for (int j = 0; j < 16; j++) {
+            ctrl[i].delta_poc_s0_minus1[j] = sps->st_rps[i].delta_poc_s0[j] - 1;
+            ctrl[i].delta_poc_s1_minus1[j] = sps->st_rps[i].delta_poc_s1[j] - 1;
+        }
+    }
+/*
+  for (i = 0; i < sps->num_long_term_ref_pics_sps; i++) {
+    ext_sps_rps_set = &g_array_index (self->ext_sps_rps,
+      struct v4l2_ctrl_hevc_ext_sps_rps, i);
+
+    ctrl[i]->lt_ref_pic_poc_lsb_sps = sps->lt_ref_pic_poc_lsb_sps[i];
+    ctrl[i]->flags |= sps->used_by_curr_pic_lt_sps_flag[i] ?
+                              V4L2_HEVC_EXT_SPS_RPS_FLAG_USED_LT : 0;
+  }
+*/
+}
+
+
 static int v4l2_request_hevc_start_frame(AVCodecContext *avctx,
                                          av_unused const AVBufferRef *buf_ref,
                                          av_unused const uint8_t *buffer,
@@ -378,6 +423,8 @@ static int v4l2_request_hevc_start_frame(AVCodecContext *avctx,
         return ret;
 
     fill_sps(&controls->sps, h);
+    if (controls->sps.num_short_term_ref_pic_sets)
+        fill_ext_sps_st_rps(controls->ext_sps_st_rps, h);
     fill_decode_params(&controls->decode_params, h);
 
     if (ctx->has_scaling_matrix) {
@@ -527,6 +574,16 @@ static int v4l2_request_hevc_queue_decode(AVCodecContext *avctx, bool last_slice
         .ptr = &controls->decode_params,
         .size = sizeof(controls->decode_params),
     };
+
+    if (controls->sps.num_short_term_ref_pic_sets) {
+        printf("%lu, %d\n", sizeof(*controls->ext_sps_st_rps), controls->sps.num_short_term_ref_pic_sets);
+        control[count++] = (struct v4l2_ext_control) {
+            .id = V4L2_CID_STATELESS_HEVC_EXT_SPS_ST_RPS,
+            .ptr = controls->ext_sps_st_rps,
+            .size = sizeof(*controls->ext_sps_st_rps) *
+		    controls->sps.num_short_term_ref_pic_sets,
+        };
+    }
 
     if (ctx->has_scaling_matrix) {
         control[count++] = (struct v4l2_ext_control) {
