@@ -108,7 +108,6 @@ cc_library_shared {
         "codec2.c",
         "concat.c",
         "concatdec.c",
-        "conformenc.c",
         "crcenc.c",
         "crypto.c",
         "dash.c",
