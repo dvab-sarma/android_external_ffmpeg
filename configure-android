@@ -2,6 +2,7 @@
 
 #
 # Copyright (C) 2025 KonstaKANG
+# Copyright (C) 2025 Venkata Atchuta Bheemeswara Sarma Darbha
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
@@ -42,7 +43,7 @@ echo "./configure $ARCH_CONFIG $FFMPEG_CONFIG"
 cat > libavutil/ffversion.h <<EOF
 #ifndef AVUTIL_FFVERSION_H
 #define AVUTIL_FFVERSION_H
-#define FFMPEG_VERSION "$(cat RELEASE) (KonstaKANG)"
+#define FFMPEG_VERSION "$(cat RELEASE) (Venkata Atchutaa Bheemeswara Sarma Darbha)"
 #endif /* AVUTIL_FFVERSION_H */
 EOF
 
