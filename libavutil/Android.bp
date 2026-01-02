@@ -15,7 +15,6 @@ cc_library_shared {
         "aarch64/cpu_sve.S",
         "aarch64/float_dsp_init.c",
         "aarch64/float_dsp_neon.S",
-        "aarch64/rpi_sand_neon.S",
         "aarch64/tx_float_init.c",
         "aarch64/tx_float_neon.S",
 
@@ -86,7 +85,8 @@ cc_library_shared {
         "refstruct.c",
         "reverse.c",
         "ripemd.c",
-        "rpi_sand_fns.c",
+        "hwcontext_v4l2request.c"
+        "hwcontext_drm.c",
         "samplefmt.c",
         "sha.c",
         "sha512.c",
