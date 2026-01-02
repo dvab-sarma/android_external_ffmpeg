@@ -85,7 +85,7 @@ cc_library_shared {
         "refstruct.c",
         "reverse.c",
         "ripemd.c",
-        "hwcontext_v4l2request.c"
+        "hwcontext_v4l2request.c",
         "hwcontext_drm.c",
         "samplefmt.c",
         "sha.c",
