@@ -34,6 +34,15 @@
 #include "hwcontext_v4l2request_internal.h"
 #include "mem.h"
 
+#ifndef V4L2_PIX_FMT_NV15
+#define V4L2_PIX_FMT_NV15    v4l2_fourcc('N', 'V', '1', '5') /* 15  Y/CbCr 4:2:0  */
+#endif
+
+#ifndef DRM_FORMAT_NV15
+#define DRM_FORMAT_NV15		fourcc_code('N', 'V', '1', '5') /* 2x2 subsampled Cr:Cb plane */
+#endif
+
+
 typedef struct V4L2RequestVideoDecoder {
     dev_t media_dev;
     dev_t video_dev;
