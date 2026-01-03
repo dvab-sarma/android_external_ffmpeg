@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2025 KonstaKANG
+// Copyright (C) 2025 Venkata Atchuta Bheemeswara Sarma Darbha
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 //
@@ -106,6 +107,7 @@ cc_library_shared {
         "cdxl.c",
         "cinedec.c",
         "codec2.c",
+        "codecstring.c",
         "concat.c",
         "concatdec.c",
         "crcenc.c",
@@ -196,6 +198,7 @@ cc_library_shared {
         "hnm.c",
         "http.c",
         "httpauth.c",
+        "hxvs.c",
         "iamf.c",
         "iamf_parse.c",
         "iamf_reader.c",

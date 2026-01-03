@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2025 KonstaKANG
+// Copyright (C) 2025 Venkata Atchuta Bheemeswara Sarma Darbha
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 //
@@ -322,6 +323,7 @@ cc_library_shared {
         "cavsdsp.c",
         "cbrt_data.c",
         "cbrt_data_fixed.c",
+        "cbrt_tablegen_common.c",
         "cbs.c",
         "cbs_apv.c",
         "cbs_av1.c",
@@ -612,6 +614,7 @@ cc_library_shared {
         "jpeglsenc.c",
         "jpegquanttables.c",
         "jpegtables.c",
+        "jpegxs_parser.c",
         "jpegxl_parse.c",
         "jpegxl_parser.c",
         "jrevdct.c",
@@ -622,7 +625,6 @@ cc_library_shared {
         "lagarith.c",
         "lagarithrac.c",
         "latm_parser.c",
-        "lcevcdec.c",
         "lcldec.c",
         "lclenc.c",
         "leaddec.c",
@@ -781,6 +783,7 @@ cc_library_shared {
         "pnmdec.c",
         "pnmenc.c",
         "profiles.c",
+        "prores_parser.c",
         "prores_raw.c",
         "prores_raw_parser.c",
         "proresdata.c",
@@ -994,6 +997,7 @@ cc_library_shared {
         "vp3_parser.c",
         "vp3dsp.c",
         "vp5.c",
+        "vp5dsp.c",
         "vp56.c",
         "vp56data.c",
         "vp6.c",

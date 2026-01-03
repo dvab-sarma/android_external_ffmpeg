@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2025 KonstaKANG
+// Copyright (C) 2025 Venkata Atchuta Bheemeswara Sarma Darbha
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 //
@@ -20,6 +21,7 @@ cc_library_shared {
         "aarch64/swscale.c",
         "aarch64/swscale_unscaled.c",
         "aarch64/swscale_unscaled_neon.S",
+        "aarch64/xyz2rgb_neon.S",
         "aarch64/yuv2rgb_neon.S",
 
         "alphablend.c",
@@ -34,6 +36,11 @@ cc_library_shared {
         "input.c",
         "log2_tab.c",
         "lut3d.c",
+        "ops.c",
+        "ops_chain.c",
+        "ops_optimizer.c",
+        "ops_backend.c",
+        "ops_memcpy.c",
         "options.c",
         "output.c",
         "rgb2rgb.c",
