@@ -72,6 +72,18 @@ struct v4l2_ctrl_hevc_ext_sps_lt_rps {
 	__u8	flags;
 };
 
+/**
+ * v4l2_timeval_to_ns - Convert timeval to nanoseconds
+ * @tv:		pointer to the timeval variable to be converted
+ *
+ * Returns the scalar nanosecond representation of the timeval
+ * parameter.
+ */
+static __inline__ __u64 v4l2_timeval_to_ns(const struct timeval *tv)
+{
+	return (__u64)tv->tv_sec * 1000000000ULL + tv->tv_usec * 1000;
+}
+
 typedef struct V4L2RequestOutputBuffer {
     AVBufferRef *ref;
     uint32_t index;
