@@ -76,7 +76,7 @@ typedef struct ShortTermRPS {
     int32_t delta_poc[32];
     uint16_t delta_poc_s0[16];
     uint16_t delta_poc_s1[16];
-    // uint32_t used;
+    uint32_t used;
 
     uint8_t delta_idx;
     uint8_t num_negative_pics;
