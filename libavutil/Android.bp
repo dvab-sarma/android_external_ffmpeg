@@ -10,7 +10,7 @@ cc_library_shared {
     defaults: ["ffmpeg_defaults"],
     shared_libs: [
         "libdrm",
-        "libudev",
+        "libudev-zero",
     ],
     srcs: [
         "aarch64/cpu.c",
