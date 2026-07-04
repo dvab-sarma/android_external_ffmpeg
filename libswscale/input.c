@@ -946,6 +946,35 @@ static void nv21ToUV_c(uint8_t *dstU, uint8_t *dstV,
     nvXXtoUV_c(dstV, dstU, src1, width);
 }
 
+static av_always_inline void nv15ToX_c(uint8_t *dst, const uint8_t *src, int pos)
+{
+    int shift = (pos & 3) << 1;
+    pos = (pos * 5) >> 2;
+    AV_WN16(dst, ((src[pos + 0] >> shift) |
+                  (src[pos + 1] << (8 - shift))) & 0x3ff);
+}
+
+static void nv15ToY_c(uint8_t *dst, const uint8_t *src,
+                      const uint8_t *unused1, const uint8_t *unused2,
+                      int width, uint32_t *unused, void *opq)
+{
+    int i;
+    for (i = 0; i < width; i++) {
+        nv15ToX_c(dst + i * 2, src, i);
+    }
+}
+
+static void nv15ToUV_c(uint8_t *dstU, uint8_t *dstV,
+                       const uint8_t *unused0, const uint8_t *src1, const uint8_t *src2,
+                       int width, uint32_t *unused, void *opq)
+{
+    int i;
+    for (i = 0; i < width; i++) {
+        nv15ToX_c(dstU + i * 2, src1, i * 2 + 0);
+        nv15ToX_c(dstV + i * 2, src1, i * 2 + 1);
+    }
+}
+
 #define p01x_uv_wrapper(fmt, shift) \
     static void fmt ## LEToUV ## _c(uint8_t *dstU,                       \
                                        uint8_t *dstV,                    \
@@ -2041,6 +2070,9 @@ av_cold void ff_sws_init_input_funcs(SwsInternal *c,
     case AV_PIX_FMT_NV20LE:
         *chrToYV12 = nv20LEToUV_c;
         break;
+    case AV_PIX_FMT_NV15:
+        c->chrToYV12 = nv15ToUV_c;
+        break;
     case AV_PIX_FMT_P010LE:
     case AV_PIX_FMT_P210LE:
     case AV_PIX_FMT_P410LE:
@@ -2629,6 +2661,9 @@ av_cold void ff_sws_init_input_funcs(SwsInternal *c,
     case AV_PIX_FMT_NV20LE:
         *lumToYV12 = nv20LEToY_c;
         break;
+    case AV_PIX_FMT_NV15:
+         c->lumToYV12 = nv15ToY_c;
+         break;
     case AV_PIX_FMT_P010LE:
     case AV_PIX_FMT_P210LE:
     case AV_PIX_FMT_P410LE:

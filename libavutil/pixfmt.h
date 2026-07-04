@@ -499,6 +499,8 @@ enum AVPixelFormat {
 
     AV_PIX_FMT_OHCODEC, /// hardware decoding through openharmony
 
+    AV_PIX_FMT_NV15,        ///< Rockchip Specific 10bit NV12
+    
     AV_PIX_FMT_NB         ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
 };
 

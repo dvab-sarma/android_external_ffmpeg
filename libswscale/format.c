@@ -250,6 +250,7 @@ static const LegacyFormatEntry legacy_format_entries[] = {
     [AV_PIX_FMT_X2BGR10LE]      = { 1, 1 },
     [AV_PIX_FMT_NV20BE]         = { 1, 1 },
     [AV_PIX_FMT_NV20LE]         = { 1, 1 },
+    [AV_PIX_FMT_NV15]           = { 1, 0 },
     [AV_PIX_FMT_P210BE]         = { 1, 1 },
     [AV_PIX_FMT_P210LE]         = { 1, 1 },
     [AV_PIX_FMT_P212BE]         = { 1, 1 },
